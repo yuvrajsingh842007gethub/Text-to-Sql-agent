@@ -1,0 +1,101 @@
+[
+   {"id": 1, "level": "easy", "q": "How many orders are there in total?",
+   "gold": "SELECT COUNT(*) FROM orders"},
+  {"id": 2, "level": "easy", "q": "How many unique customers are there (by customer_unique_id)?",
+   "gold": "SELECT COUNT(DISTINCT customer_unique_id) FROM customers"},
+  {"id": 3, "level": "easy", "q": "How many sellers are there?",
+   "gold": "SELECT COUNT(*) FROM sellers"},
+  {"id": 4, "level": "easy", "q": "How many orders have status delivered?",
+   "gold": "SELECT COUNT(*) FROM orders WHERE order_status = 'delivered'"},
+  {"id": 5, "level": "easy", "q": "What is the average review score?",
+   "gold": "SELECT AVG(review_score) FROM order_reviews"},
+  {"id": 6, "level": "easy", "q": "Which payment type is used most often? Return only the payment type.",
+   "gold": "SELECT payment_type FROM order_payments GROUP BY payment_type ORDER BY COUNT(*) DESC LIMIT 1"},
+  {"id": 7, "level": "easy", "q": "How many products are there?",
+   "gold": "SELECT COUNT(*) FROM products"},
+  {"id": 8, "level": "easy", "q": "Top 3 customer states by number of customers, with counts.",
+   "gold": "SELECT customer_state, COUNT(*) FROM customers GROUP BY customer_state ORDER BY 2 DESC LIMIT 3"},
+
+  {"id": 9, "level": "join", "q": "Top 5 product categories (English names) by total revenue (sum of item price), with revenue.",
+   "gold": "SELECT t.product_category_name_english, SUM(oi.price) FROM order_items oi JOIN products p ON oi.product_id = p.product_id JOIN product_category_name_translation t ON p.product_category_name = t.product_category_name GROUP BY 1 ORDER BY 2 DESC LIMIT 5"},
+  {"id": 10, "level": "join", "q": "What is the total revenue (sum of item price) from delivered orders?",
+   "gold": "SELECT SUM(oi.price) FROM order_items oi JOIN orders o ON oi.order_id = o.order_id WHERE o.order_status = 'delivered'"},
+  {"id": 11, "level": "join", "q": "Top 5 sellers by total revenue (sum of item price), with seller_id and revenue.",
+   "gold": "SELECT seller_id, SUM(price) FROM order_items GROUP BY seller_id ORDER BY 2 DESC LIMIT 5"},
+  {"id": 12, "level": "join", "q": "Top 5 customer states by number of orders, with counts.",
+   "gold": "SELECT c.customer_state, COUNT(*) FROM orders o JOIN customers c ON o.customer_id = c.customer_id GROUP BY 1 ORDER BY 2 DESC LIMIT 5"},
+  {"id": 13, "level": "join", "q": "Average payment value for each payment type.",
+   "gold": "SELECT payment_type, AVG(payment_value) FROM order_payments GROUP BY payment_type"},
+  {"id": 14, "level": "join", "q": "Average freight value for each seller state.",
+   "gold": "SELECT s.seller_state, AVG(oi.freight_value) FROM order_items oi JOIN sellers s ON oi.seller_id = s.seller_id GROUP BY 1"},
+  {"id": 15, "level": "join", "q": "Average review score for each customer state.",
+   "gold": "SELECT c.customer_state, AVG(r.review_score) FROM order_reviews r JOIN orders o ON r.order_id = o.order_id JOIN customers c ON o.customer_id = c.customer_id GROUP BY 1"},
+
+  {"id": 16, "level": "date", "q": "Number of orders placed in each year (by purchase timestamp).",
+   "gold": "SELECT strftime('%Y', order_purchase_timestamp), COUNT(*) FROM orders GROUP BY 1"},
+  {"id": 17, "level": "date", "q": "Total revenue (sum of item price) for each purchase year.",
+   "gold": "SELECT strftime('%Y', o.order_purchase_timestamp), SUM(oi.price) FROM order_items oi JOIN orders o ON oi.order_id = o.order_id GROUP BY 1"},
+  {"id": 18, "level": "date", "q": "Which month number had the most orders in 2017? Return month and count.",
+   "gold": "SELECT strftime('%m', order_purchase_timestamp), COUNT(*) FROM orders WHERE strftime('%Y', order_purchase_timestamp) = '2017' GROUP BY 1 ORDER BY 2 DESC LIMIT 1"},
+  {"id": 19, "level": "date", "q": "Average delivery time in days (purchase to customer delivery) for delivered orders.",
+   "gold": "SELECT AVG(julianday(order_delivered_customer_date) - julianday(order_purchase_timestamp)) FROM orders WHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL"},
+  {"id": 20, "level": "date", "q": "How many delivered orders arrived after the estimated delivery date?",
+   "gold": "SELECT COUNT(*) FROM orders WHERE order_status = 'delivered' AND order_delivered_customer_date > order_estimated_delivery_date"},
+  {"id": 21, "level": "hard", "q": "What percentage of all orders are canceled?",
+  "gold": "SELECT 100.0 * SUM(order_status = 'canceled') / COUNT(*) FROM orders"},
+
+  {"id": 22, "level": "hard", "q": "List sellers who have more than 100 distinct orders, with seller_id and order count, highest first.",
+ "gold": "SELECT seller_id, COUNT(DISTINCT order_id) FROM order_items GROUP BY seller_id HAVING COUNT(DISTINCT order_id) > 100 ORDER BY 2 DESC"},
+
+  {"id": 23, "level": "hard", "q": "How many unique customers (by customer_unique_id) placed more than one order?",
+ "gold": "SELECT COUNT(*) FROM (SELECT c.customer_unique_id FROM orders o JOIN customers c ON o.customer_id = c.customer_id GROUP BY c.customer_unique_id HAVING COUNT(*) > 1)"},
+
+  {"id": 24, "level": "hard", "q": "How many orders were paid using more than one distinct payment type?",
+ "gold": "SELECT COUNT(*) FROM (SELECT order_id FROM order_payments GROUP BY order_id HAVING COUNT(DISTINCT payment_type) > 1)"},
+  {"id": 25, "level": "hard", "q": "What percentage of delivered orders arrived after the estimated delivery date? Ignore orders with no delivery date.",
+ "gold": "SELECT 100.0 * SUM(order_delivered_customer_date > order_estimated_delivery_date) / COUNT(*) FROM orders WHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL"},
+
+{"id": 26, "level": "hard", "q": "Average review score for delivered orders that arrived late versus on time. Label groups 'late' and 'on_time'. Ignore orders with no delivery date.",
+ "gold": "SELECT CASE WHEN o.order_delivered_customer_date > o.order_estimated_delivery_date THEN 'late' ELSE 'on_time' END, AVG(r.review_score) FROM orders o JOIN order_reviews r ON o.order_id = r.order_id WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL GROUP BY 1"},
+
+{"id": 27, "level": "hard", "q": "Top 5 product categories (English names) by number of distinct orders, with counts.",
+ "gold": "SELECT t.product_category_name_english, COUNT(DISTINCT oi.order_id) FROM order_items oi JOIN products p ON oi.product_id = p.product_id JOIN product_category_name_translation t ON p.product_category_name = t.product_category_name GROUP BY 1 ORDER BY 2 DESC LIMIT 5"},
+
+{"id": 28, "level": "hard", "q": "How many sellers have total revenue (sum of item price) above the average revenue per seller?",
+ "gold": "SELECT COUNT(*) FROM (SELECT seller_id, SUM(price) AS s FROM order_items GROUP BY seller_id) WHERE s > (SELECT AVG(s) FROM (SELECT SUM(price) AS s FROM order_items GROUP BY seller_id))"},
+
+{"id": 29, "level": "hard", "q": "How many orders have no review at all?",
+ "gold": "SELECT COUNT(*) FROM orders WHERE order_id NOT IN (SELECT order_id FROM order_reviews)"},
+
+{"id": 30, "level": "hard", "q": "What percentage of reviews have a score of 5?",
+ "gold": "SELECT 100.0 * SUM(review_score = 5) / COUNT(*) FROM order_reviews"},
+ {"id": 31, "level": "hard", "q": "What is the average order value, where an order's value is the sum of its payment_value across all its payments?",
+ "gold": "SELECT AVG(t) FROM (SELECT SUM(payment_value) AS t FROM order_payments GROUP BY order_id)"},
+
+{"id": 32, "level": "hard", "q": "What percentage of unique customers (by customer_unique_id) placed more than one order?",
+ "gold": "SELECT 100.0 * SUM(n > 1) / COUNT(*) FROM (SELECT c.customer_unique_id, COUNT(*) AS n FROM orders o JOIN customers c ON o.customer_id = c.customer_id GROUP BY 1)"},
+
+{"id": 33, "level": "hard", "q": "Which product category (English name) has the lowest average review score among categories with at least 100 distinct reviewed orders? Average over distinct (order, category, review score) combinations, so an order with several items of the same category counts once. Return the category and the average score.",
+ "gold": "SELECT cat, AVG(review_score) AS a FROM (SELECT DISTINCT oi.order_id, t.product_category_name_english AS cat, r.review_score FROM order_reviews r JOIN order_items oi ON r.order_id = oi.order_id JOIN products p ON oi.product_id = p.product_id JOIN product_category_name_translation t ON p.product_category_name = t.product_category_name) GROUP BY cat HAVING COUNT(DISTINCT order_id) >= 100 ORDER BY a ASC LIMIT 1"},
+
+{"id": 34, "level": "hard", "q": "For each month of 2017, show the month as 'YYYY-MM', total revenue (sum of item price), and the percentage change in revenue versus the previous month, rounded to 2 decimals.",
+ "gold": "SELECT m, rev, ROUND(100.0 * (rev - LAG(rev) OVER (ORDER BY m)) / LAG(rev) OVER (ORDER BY m), 2) FROM (SELECT strftime('%Y-%m', o.order_purchase_timestamp) AS m, SUM(oi.price) AS rev FROM order_items oi JOIN orders o ON oi.order_id = o.order_id WHERE strftime('%Y', o.order_purchase_timestamp) = '2017' GROUP BY 1)"},
+
+{"id": 35, "level": "hard", "q": "Which customer state has the highest average freight value? Return state and average.",
+ "gold": "SELECT c.customer_state, AVG(oi.freight_value) FROM order_items oi JOIN orders o ON oi.order_id = o.order_id JOIN customers c ON o.customer_id = c.customer_id GROUP BY 1 ORDER BY 2 DESC LIMIT 1"},
+
+{"id": 36, "level": "hard", "q": "How many orders contain items from more than one seller?",
+ "gold": "SELECT COUNT(*) FROM (SELECT order_id FROM order_items GROUP BY order_id HAVING COUNT(DISTINCT seller_id) > 1)"},
+
+{"id": 37, "level": "hard", "q": "How many orders have status delivered but no customer delivery date recorded?",
+ "gold": "SELECT COUNT(*) FROM orders WHERE order_status = 'delivered' AND order_delivered_customer_date IS NULL"},
+
+{"id": 38, "level": "hard", "q": "What is the average number of payment installments for credit card payments?",
+ "gold": "SELECT AVG(payment_installments) FROM order_payments WHERE payment_type = 'credit_card'"},
+
+{"id": 39, "level": "hard", "q": "Which product category (English name) has the highest average item price among categories with at least 50 items sold? Return category and average price.",
+ "gold": "SELECT t.product_category_name_english, AVG(oi.price) AS a FROM order_items oi JOIN products p ON oi.product_id = p.product_id JOIN product_category_name_translation t ON p.product_category_name = t.product_category_name GROUP BY 1 HAVING COUNT(*) >= 50 ORDER BY a DESC LIMIT 1"},
+
+{"id": 40, "level": "hard", "q": "What percentage of orders had at least one payment made with a voucher?",
+ "gold": "SELECT 100.0 * COUNT(DISTINCT CASE WHEN payment_type = 'voucher' THEN order_id END) / COUNT(DISTINCT order_id) FROM order_payments"}
+]

@@ -1,0 +1,230 @@
+[
+  {
+    "id": 1,
+    "q": "Who is the best customer?",
+    "ambiguous": true,
+    "asked": true,
+    "correct": true,
+    "llm_called": true,
+    "options": [
+      "Highest total purchase amount (revenue)",
+      "Most orders placed",
+      "Highest average order value"
+    ]
+  },
+  {
+    "id": 2,
+    "q": "Which are the top products?",
+    "ambiguous": true,
+    "asked": true,
+    "correct": true,
+    "llm_called": true,
+    "options": [
+      "Top products by total sales revenue (sum of price)",
+      "Top products by number of items sold (count of order_items)",
+      "Top products by average review score (average review_score)"
+    ]
+  },
+  {
+    "id": 3,
+    "q": "Show me the most valuable sellers.",
+    "ambiguous": true,
+    "asked": true,
+    "correct": true,
+    "llm_called": true,
+    "options": [
+      "Sellers with the highest total sales revenue (sum of price)",
+      "Sellers with the highest number of orders sold",
+      "Sellers with the highest average order value (average price per order)",
+      "Sellers with the highest total freight value collected"
+    ]
+  },
+  {
+    "id": 4,
+    "q": "Which is the best performing product category?",
+    "ambiguous": true,
+    "asked": true,
+    "correct": true,
+    "llm_called": true,
+    "options": [
+      "Highest total sales revenue",
+      "Highest number of orders",
+      "Highest average review score"
+    ]
+  },
+  {
+    "id": 5,
+    "q": "Who are the most loyal customers?",
+    "ambiguous": true,
+    "asked": true,
+    "correct": true,
+    "llm_called": true,
+    "options": [
+      "Customers with the highest number of orders (most frequent purchases)",
+      "Customers with the highest total spending across all orders",
+      "Customers with the longest time since their first purchase (customer tenure)"
+    ]
+  },
+  {
+    "id": 6,
+    "q": "Which state is the best?",
+    "ambiguous": true,
+    "asked": true,
+    "correct": true,
+    "llm_called": true,
+    "options": [
+      "State with the highest total sales revenue",
+      "State with the most customers",
+      "State with the highest average review score"
+    ]
+  },
+  {
+    "id": 7,
+    "q": "Which seller is the best?",
+    "ambiguous": true,
+    "asked": true,
+    "correct": true,
+    "llm_called": true,
+    "options": [
+      "Highest total sales revenue",
+      "Most orders sold",
+      "Highest average review score",
+      "Fastest average delivery time"
+    ]
+  },
+  {
+    "id": 8,
+    "q": "Show me the worst products.",
+    "ambiguous": true,
+    "asked": true,
+    "correct": true,
+    "llm_called": true,
+    "options": [
+      "Products with the lowest average review score",
+      "Products with the lowest total sales revenue",
+      "Products with the fewest number of orders"
+    ]
+  },
+  {
+    "id": 9,
+    "q": "Who are the most important customers?",
+    "ambiguous": true,
+    "asked": true,
+    "correct": true,
+    "llm_called": true,
+    "options": [
+      "Customers with the highest total purchase amount (revenue)",
+      "Customers with the most orders placed",
+      "Customers with the highest average order value",
+      "Customers with the highest average review score"
+    ]
+  },
+  {
+    "id": 10,
+    "q": "Show me recent orders.",
+    "ambiguous": true,
+    "asked": true,
+    "correct": true,
+    "llm_called": true,
+    "options": [
+      "the most recent 10 orders",
+      "orders from the last 7 days",
+      "orders placed in the last month",
+      "orders delivered in the last week"
+    ]
+  },
+  {
+    "id": 11,
+    "q": "How many orders are there?",
+    "ambiguous": false,
+    "asked": false,
+    "correct": true,
+    "llm_called": false,
+    "options": []
+  },
+  {
+    "id": 12,
+    "q": "Top 5 sellers by revenue",
+    "ambiguous": false,
+    "asked": false,
+    "correct": true,
+    "llm_called": false,
+    "options": []
+  },
+  {
+    "id": 13,
+    "q": "What is the average review score?",
+    "ambiguous": false,
+    "asked": false,
+    "correct": true,
+    "llm_called": false,
+    "options": []
+  },
+  {
+    "id": 14,
+    "q": "Top 5 product categories by number of orders",
+    "ambiguous": false,
+    "asked": false,
+    "correct": true,
+    "llm_called": false,
+    "options": []
+  },
+  {
+    "id": 15,
+    "q": "How many sellers are there?",
+    "ambiguous": false,
+    "asked": false,
+    "correct": true,
+    "llm_called": false,
+    "options": []
+  },
+  {
+    "id": 16,
+    "q": "What is the most recent order purchase date?",
+    "ambiguous": false,
+    "asked": false,
+    "correct": true,
+    "llm_called": true,
+    "options": []
+  },
+  {
+    "id": 17,
+    "q": "Show the top 3 customer states by number of customers",
+    "ambiguous": false,
+    "asked": false,
+    "correct": true,
+    "llm_called": false,
+    "options": []
+  },
+  {
+    "id": 18,
+    "q": "What is the latest delivered order date?",
+    "ambiguous": false,
+    "asked": true,
+    "correct": false,
+    "llm_called": true,
+    "options": [
+      "Date the order was delivered to the carrier (order_delivered_carrier_date)",
+      "Date the order was delivered to the customer (order_delivered_customer_date)",
+      "Purchase date of the latest order that was delivered (order_purchase_timestamp where order_status = 'delivered')"
+    ]
+  },
+  {
+    "id": 19,
+    "q": "Average delivery time in days for delivered orders",
+    "ambiguous": false,
+    "asked": false,
+    "correct": true,
+    "llm_called": false,
+    "options": []
+  },
+  {
+    "id": 20,
+    "q": "What percentage of orders are canceled?",
+    "ambiguous": false,
+    "asked": false,
+    "correct": true,
+    "llm_called": false,
+    "options": []
+  }
+]

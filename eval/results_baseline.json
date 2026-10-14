@@ -1,0 +1,282 @@
+[
+  {
+    "id": 1,
+    "level": "easy",
+    "q": "How many orders are there in total?",
+    "gold": "SELECT COUNT(*) FROM orders",
+    "agent_sql": "SELECT COUNT(*) AS total_orders FROM orders;",
+    "status": "correct",
+    "error": "",
+    "latency": 1.74
+  },
+  {
+    "id": 2,
+    "level": "easy",
+    "q": "How many unique customers are there (by customer_unique_id)?",
+    "gold": "SELECT COUNT(DISTINCT customer_unique_id) FROM customers",
+    "agent_sql": "SELECT COUNT(DISTINCT customer_unique_id) AS unique_customers\nFROM customers;",
+    "status": "correct",
+    "error": "",
+    "latency": 3.11
+  },
+  {
+    "id": 3,
+    "level": "easy",
+    "q": "How many sellers are there?",
+    "gold": "SELECT COUNT(*) FROM sellers",
+    "agent_sql": "SELECT COUNT(DISTINCT seller_id) AS seller_count\nFROM sellers;",
+    "status": "correct",
+    "error": "",
+    "latency": 11.41
+  },
+  {
+    "id": 4,
+    "level": "easy",
+    "q": "How many orders have status delivered?",
+    "gold": "SELECT COUNT(*) FROM orders WHERE order_status = 'delivered'",
+    "agent_sql": "SELECT COUNT(*) AS delivered_orders_count\nFROM orders\nWHERE order_status = 'delivered';",
+    "status": "correct",
+    "error": "",
+    "latency": 1.64
+  },
+  {
+    "id": 5,
+    "level": "easy",
+    "q": "What is the average review score?",
+    "gold": "SELECT AVG(review_score) FROM order_reviews",
+    "agent_sql": "SELECT AVG(review_score) AS average_review_score\nFROM order_reviews;",
+    "status": "correct",
+    "error": "",
+    "latency": 2.68
+  },
+  {
+    "id": 6,
+    "level": "easy",
+    "q": "Which payment type is used most often? Return only the payment type.",
+    "gold": "SELECT payment_type FROM order_payments GROUP BY payment_type ORDER BY COUNT(*) DESC LIMIT 1",
+    "agent_sql": "SELECT payment_type\nFROM order_payments\nGROUP BY payment_type\nORDER BY COUNT(*) DESC\nLIMIT 1;",
+    "status": "correct",
+    "error": "",
+    "latency": 3.26
+  },
+  {
+    "id": 7,
+    "level": "easy",
+    "q": "How many products are there?",
+    "gold": "SELECT COUNT(*) FROM products",
+    "agent_sql": "SELECT COUNT(DISTINCT product_id) AS product_count\nFROM products;",
+    "status": "correct",
+    "error": "",
+    "latency": 6.34
+  },
+  {
+    "id": 8,
+    "level": "easy",
+    "q": "Top 3 customer states by number of customers, with counts.",
+    "gold": "SELECT customer_state, COUNT(*) FROM customers GROUP BY customer_state ORDER BY 2 DESC LIMIT 3",
+    "agent_sql": "SELECT customer_state, COUNT(*) AS customer_count\nFROM customers\nGROUP BY customer_state\nORDER BY customer_count DESC\nLIMIT 3;",
+    "status": "correct",
+    "error": "",
+    "latency": 1.92
+  },
+  {
+    "id": 9,
+    "level": "join",
+    "q": "Top 5 product categories (English names) by total revenue (sum of item price), with revenue.",
+    "gold": "SELECT t.product_category_name_english, SUM(oi.price) FROM order_items oi JOIN products p ON oi.product_id = p.product_id JOIN product_category_name_translation t ON p.product_category_name = t.product_category_name GROUP BY 1 ORDER BY 2 DESC LIMIT 5",
+    "agent_sql": "SELECT pct.product_category_name_english AS category,\n       SUM(oi.price) AS revenue\nFROM order_items AS oi\nJOIN products AS p\n  ON oi.product_id = p.product_id\nJOIN product_category_name_translation AS pct\n  ON p.product_category_name = pct.product_category_name\nGROUP BY pct.product_category_name_english\nORDER BY revenue DESC\nLIMIT 5;",
+    "status": "correct",
+    "error": "",
+    "latency": 1.34
+  },
+  {
+    "id": 10,
+    "level": "join",
+    "q": "What is the total revenue (sum of item price) from delivered orders?",
+    "gold": "SELECT SUM(oi.price) FROM order_items oi JOIN orders o ON oi.order_id = o.order_id WHERE o.order_status = 'delivered'",
+    "agent_sql": "SELECT SUM(oi.price) AS total_revenue\nFROM order_items AS oi\nJOIN orders AS o ON oi.order_id = o.order_id\nWHERE o.order_status = 'delivered';",
+    "status": "correct",
+    "error": "",
+    "latency": 1.79
+  },
+  {
+    "id": 11,
+    "level": "join",
+    "q": "Top 5 sellers by total revenue (sum of item price), with seller_id and revenue.",
+    "gold": "SELECT seller_id, SUM(price) FROM order_items GROUP BY seller_id ORDER BY 2 DESC LIMIT 5",
+    "agent_sql": "SELECT oi.seller_id,\n       SUM(oi.price) AS revenue\nFROM order_items AS oi\nGROUP BY oi.seller_id\nORDER BY revenue DESC\nLIMIT 5;",
+    "status": "correct",
+    "error": "",
+    "latency": 4.92
+  },
+  {
+    "id": 12,
+    "level": "join",
+    "q": "Top 5 customer states by number of orders, with counts.",
+    "gold": "SELECT c.customer_state, COUNT(*) FROM orders o JOIN customers c ON o.customer_id = c.customer_id GROUP BY 1 ORDER BY 2 DESC LIMIT 5",
+    "agent_sql": "SELECT c.customer_state AS state,\n       COUNT(o.order_id) AS order_count\nFROM orders o\nJOIN customers c ON o.customer_id = c.customer_id\nGROUP BY c.customer_state\nORDER BY order_count DESC\nLIMIT 5;",
+    "status": "correct",
+    "error": "",
+    "latency": 2.71
+  },
+  {
+    "id": 13,
+    "level": "join",
+    "q": "Average payment value for each payment type.",
+    "gold": "SELECT payment_type, AVG(payment_value) FROM order_payments GROUP BY payment_type",
+    "agent_sql": "SELECT payment_type,\n       AVG(payment_value) AS avg_payment_value\nFROM order_payments\nGROUP BY payment_type;",
+    "status": "correct",
+    "error": "",
+    "latency": 1.57
+  },
+  {
+    "id": 14,
+    "level": "join",
+    "q": "Average freight value for each seller state.",
+    "gold": "SELECT s.seller_state, AVG(oi.freight_value) FROM order_items oi JOIN sellers s ON oi.seller_id = s.seller_id GROUP BY 1",
+    "agent_sql": "SELECT s.seller_state,\n       AVG(oi.freight_value) AS avg_freight_value\nFROM order_items AS oi\nJOIN sellers AS s\n  ON oi.seller_id = s.seller_id\nGROUP BY s.seller_state\nORDER BY s.seller_state;",
+    "status": "correct",
+    "error": "",
+    "latency": 1.84
+  },
+  {
+    "id": 15,
+    "level": "join",
+    "q": "Average review score for each customer state.",
+    "gold": "SELECT c.customer_state, AVG(r.review_score) FROM order_reviews r JOIN orders o ON r.order_id = o.order_id JOIN customers c ON o.customer_id = c.customer_id GROUP BY 1",
+    "agent_sql": "SELECT c.customer_state,\n       AVG(r.review_score) AS avg_review_score\nFROM order_reviews r\nJOIN orders o ON r.order_id = o.order_id\nJOIN customers c ON o.customer_id = c.customer_id\nGROUP BY c.customer_state;",
+    "status": "correct",
+    "error": "",
+    "latency": 1.41
+  },
+  {
+    "id": 16,
+    "level": "date",
+    "q": "Number of orders placed in each year (by purchase timestamp).",
+    "gold": "SELECT strftime('%Y', order_purchase_timestamp), COUNT(*) FROM orders GROUP BY 1",
+    "agent_sql": "SELECT strftime('%Y', order_purchase_timestamp) AS year,\n       COUNT(*) AS order_count\nFROM orders\nWHERE order_purchase_timestamp IS NOT NULL\nGROUP BY year\nORDER BY year;",
+    "status": "correct",
+    "error": "",
+    "latency": 8.17
+  },
+  {
+    "id": 17,
+    "level": "date",
+    "q": "Total revenue (sum of item price) for each purchase year.",
+    "gold": "SELECT strftime('%Y', o.order_purchase_timestamp), SUM(oi.price) FROM order_items oi JOIN orders o ON oi.order_id = o.order_id GROUP BY 1",
+    "agent_sql": "SELECT strftime('%Y', o.order_purchase_timestamp) AS purchase_year,\n       SUM(oi.price) AS total_revenue\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.order_id\nGROUP BY purchase_year\nORDER BY purchase_year;",
+    "status": "correct",
+    "error": "",
+    "latency": 1.7
+  },
+  {
+    "id": 18,
+    "level": "date",
+    "q": "Which month number had the most orders in 2017? Return month and count.",
+    "gold": "SELECT strftime('%m', order_purchase_timestamp), COUNT(*) FROM orders WHERE strftime('%Y', order_purchase_timestamp) = '2017' GROUP BY 1 ORDER BY 2 DESC LIMIT 1",
+    "agent_sql": "SELECT CAST(strftime('%m', order_purchase_timestamp) AS INTEGER) AS month,\n       COUNT(*) AS order_count\nFROM orders\nWHERE strftime('%Y', order_purchase_timestamp) = '2017'\nGROUP BY month\nORDER BY order_count DESC\nLIMIT 1;",
+    "status": "correct",
+    "error": "",
+    "latency": 6.27
+  },
+  {
+    "id": 19,
+    "level": "date",
+    "q": "Average delivery time in days (purchase to customer delivery) for delivered orders.",
+    "gold": "SELECT AVG(julianday(order_delivered_customer_date) - julianday(order_purchase_timestamp)) FROM orders WHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL",
+    "agent_sql": "SELECT AVG(julianday(order_delivered_customer_date) - julianday(order_purchase_timestamp)) AS avg_delivery_days\nFROM orders\nWHERE order_status = 'delivered'\n  AND order_delivered_customer_date IS NOT NULL\n  AND order_purchase_timestamp IS NOT NULL;",
+    "status": "correct",
+    "error": "",
+    "latency": 1.21
+  },
+  {
+    "id": 20,
+    "level": "date",
+    "q": "How many delivered orders arrived after the estimated delivery date?",
+    "gold": "SELECT COUNT(*) FROM orders WHERE order_status = 'delivered' AND order_delivered_customer_date > order_estimated_delivery_date",
+    "agent_sql": "SELECT COUNT(*) \nFROM orders \nWHERE order_status = 'delivered' \n  AND order_delivered_customer_date > order_estimated_delivery_date;",
+    "status": "correct",
+    "error": "",
+    "latency": 0.91
+  },
+  {
+    "id": 21,
+    "level": "hard",
+    "q": "What percentage of all orders are canceled?",
+    "gold": "SELECT 100.0 * SUM(order_status = 'canceled') / COUNT(*) FROM orders",
+    "agent_sql": "SELECT \n    ROUND(\n        100.0 * SUM(CASE WHEN order_status = 'canceled' THEN 1 ELSE 0 END) \n        / COUNT(*), \n    2) AS canceled_percentage\nFROM orders;",
+    "status": "correct",
+    "error": "",
+    "latency": 1.01
+  },
+  {
+    "id": 22,
+    "level": "hard",
+    "q": "List sellers who have more than 100 distinct orders, with seller_id and order count, highest first.",
+    "gold": "SELECT seller_id, COUNT(DISTINCT order_id) FROM order_items GROUP BY seller_id HAVING COUNT(DISTINCT order_id) > 100 ORDER BY 2 DESC",
+    "agent_sql": "SELECT\n    seller_id,\n    COUNT(DISTINCT order_id) AS order_count\nFROM\n    order_items\nGROUP BY\n    seller_id\nHAVING\n    order_count > 100\nORDER BY\n    order_count DESC;",
+    "status": "correct",
+    "error": "",
+    "latency": 1.08
+  },
+  {
+    "id": 23,
+    "level": "hard",
+    "q": "How many unique customers (by customer_unique_id) placed more than one order?",
+    "gold": "SELECT COUNT(*) FROM (SELECT c.customer_unique_id FROM orders o JOIN customers c ON o.customer_id = c.customer_id GROUP BY c.customer_unique_id HAVING COUNT(*) > 1)",
+    "agent_sql": "SELECT COUNT(*) AS unique_customers_multiple_orders\nFROM (\n    SELECT c.customer_unique_id\n    FROM orders o\n    JOIN customers c ON o.customer_id = c.customer_id\n    GROUP BY c.customer_unique_id\n    HAVING COUNT(DISTINCT o.order_id) > 1\n);",
+    "status": "correct",
+    "error": "",
+    "latency": 1.33
+  },
+  {
+    "id": 24,
+    "level": "hard",
+    "q": "How many orders were paid using more than one distinct payment type?",
+    "gold": "SELECT COUNT(*) FROM (SELECT order_id FROM order_payments GROUP BY order_id HAVING COUNT(DISTINCT payment_type) > 1)",
+    "agent_sql": "SELECT COUNT(*) \nFROM (\n    SELECT order_id\n    FROM order_payments\n    GROUP BY order_id\n    HAVING COUNT(DISTINCT payment_type) > 1\n);",
+    "status": "correct",
+    "error": "",
+    "latency": 2.09
+  },
+  {
+    "id": 25,
+    "level": "hard",
+    "q": "What percentage of delivered orders arrived after the estimated delivery date? Ignore orders with no delivery date.",
+    "gold": "SELECT 100.0 * SUM(order_delivered_customer_date > order_estimated_delivery_date) / COUNT(*) FROM orders WHERE order_status = 'delivered' AND order_delivered_customer_date IS NOT NULL",
+    "agent_sql": "SELECT ROUND(100.0 * SUM(CASE WHEN datetime(order_delivered_customer_date) > datetime(order_estimated_delivery_date) THEN 1 ELSE 0 END) / COUNT(*), 2) AS late_percentage\nFROM orders\nWHERE order_status = 'delivered'\n  AND order_delivered_customer_date IS NOT NULL\n  AND order_estimated_delivery_date IS NOT NULL;",
+    "status": "correct",
+    "error": "",
+    "latency": 1.55
+  },
+  {
+    "id": 26,
+    "level": "hard",
+    "q": "Average review score for delivered orders that arrived late versus on time. Label groups 'late' and 'on_time'. Ignore orders with no delivery date.",
+    "gold": "SELECT CASE WHEN o.order_delivered_customer_date > o.order_estimated_delivery_date THEN 'late' ELSE 'on_time' END, AVG(r.review_score) FROM orders o JOIN order_reviews r ON o.order_id = r.order_id WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL GROUP BY 1",
+    "agent_sql": "SELECT \n    CASE \n        WHEN datetime(o.order_delivered_customer_date) > datetime(o.order_estimated_delivery_date) THEN 'late'\n        ELSE 'on_time'\n    END AS delivery_status,\n    AVG(r.review_score) AS avg_review_score\nFROM orders o\nJOIN order_reviews r ON o.order_id = r.order_id\nWHERE o.order_status = 'delivered'\n  AND o.order_delivered_customer_date IS NOT NULL\n  AND o.order_estimated_delivery_date IS NOT NULL\nGROUP BY delivery_status;",
+    "status": "correct",
+    "error": "",
+    "latency": 2.53
+  },
+  {
+    "id": 27,
+    "level": "hard",
+    "q": "Top 5 product categories (English names) by number of distinct orders, with counts.",
+    "gold": "SELECT t.product_category_name_english, COUNT(DISTINCT oi.order_id) FROM order_items oi JOIN products p ON oi.product_id = p.product_id JOIN product_category_name_translation t ON p.product_category_name = t.product_category_name GROUP BY 1 ORDER BY 2 DESC LIMIT 5",
+    "agent_sql": "SELECT pct.product_category_name_english AS category,\n       COUNT(DISTINCT oi.order_id) AS distinct_orders\nFROM order_items oi\nJOIN products p ON oi.product_id = p.product_id\nJOIN product_category_name_translation pct\n     ON p.product_category_name = pct.product_category_name\nGROUP BY pct.product_category_name_english\nORDER BY distinct_orders DESC\nLIMIT 5;",
+    "status": "correct",
+    "error": "",
+    "latency": 3.32
+  },
+  {
+    "id": 28,
+    "level": "hard",
+    "q": "How many sellers have total revenue (sum of item price) above the average revenue per seller?",
+    "gold": "SELECT COUNT(*) FROM (SELECT seller_id, SUM(price) AS s FROM order_items GROUP BY seller_id) WHERE s > (SELECT AVG(s) FROM (SELECT SUM(price) AS s FROM order_items GROUP BY seller_id))",
+    "agent_sql": "SELECT COUNT(*) \nFROM (\n    SELECT seller_id, SUM(price) AS revenue\n    FROM order_items\n    GROUP BY seller_id\n) AS seller_rev\nWHERE revenue > (\n    SELECT AVG(revenue)\n    FROM (\n        SELECT seller_id, SUM(price) AS revenue\n        FROM order_items\n        GROUP BY seller_id\n    ) AS avg_rev\n);",
+    "status": "correct",
+    "error": "",
+    "latency": 2.41
+  }
+]

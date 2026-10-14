@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ask the database</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c1424; --panel:#121c30; --raise:#182540; --line:#24344f;
+  --ink:#eaf0fa; --mute:#8fa0bd; --amber:#f4b740; --amber-ink:#1b1403;
+  --good:#5fd3a6; --bad:#ff8a8a;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"DM Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:light){:root{
+  --bg:#eef2f7; --panel:#ffffff; --raise:#f3f6fb; --line:#d9e1ec;
+  --ink:#0f1e33; --mute:#5b6b85; --amber:#b86e00; --amber-ink:#ffffff;
+  --good:#12805c; --bad:#c23a3a;
+}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--body);display:flex;flex-direction:column}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:44px 44px;-webkit-mask-image:linear-gradient(#000 0,transparent 55%);mask-image:linear-gradient(#000 0,transparent 55%)}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+button{font:inherit;color:inherit}
+
+.top{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px clamp(16px,4vw,40px);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px)}
+.brand{display:flex;align-items:center;gap:10px;font:700 17px var(--display)}
+.mark{width:28px;height:28px;border-radius:7px;background:var(--amber);color:var(--amber-ink);display:grid;place-items:center;font:500 12px var(--mono)}
+.safe{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pill{font-size:12.5px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;color:var(--mute);background:var(--panel)}
+.pill i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--good);margin-right:6px}
+
+#scroll{position:relative;flex:1;overflow-y:auto;scroll-behavior:smooth}
+.wrap{max-width:860px;margin:0 auto;padding:0 clamp(16px,4vw,32px)}
+
+.hero{padding:clamp(36px,9vh,96px) 0 24px}
+.hero h1{font:700 clamp(34px,6.4vw,62px)/1.04 var(--display);letter-spacing:-.025em;margin:0 0 14px;max-width:14em}
+.hero p{margin:0;color:var(--mute);max-width:34em;font-size:16.5px}
+.try{margin-top:30px;border-top:1px solid var(--line)}
+.try button{display:flex;align-items:baseline;gap:14px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);
+  padding:13px 4px;cursor:pointer;font-size:16px;transition:padding .15s,background .15s}
+.try button:hover{background:var(--panel);padding-left:14px}
+.try small{color:var(--mute);font-size:13px;margin-left:auto;white-space:nowrap}
+
+#log{padding:12px 0 28px}
+.q{display:flex;justify-content:flex-end;margin:22px 0 12px}
+.q span{background:var(--raise);border:1px solid var(--line);padding:9px 15px;border-radius:14px 14px 4px 14px;max-width:85%}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.flow{display:flex;flex-wrap:wrap;gap:6px 18px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--raise);font-size:13px;color:var(--mute)}
+.flow span{display:flex;align-items:center;gap:7px}
+.flow b{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:10px;line-height:1}
+.flow .run b{border-color:var(--amber);animation:pulse 1s infinite}
+.flow .ok{color:var(--ink)} .flow .ok b{background:var(--good);border-color:var(--good);color:#06281c}
+.flow .no{color:var(--bad)} .flow .no b{background:var(--bad);border-color:var(--bad);color:#2a0707}
+.flow .skip{opacity:.45}
+@keyframes pulse{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--amber) 25%,transparent)}}
+@media (prefers-reduced-motion:reduce){.flow .run b{animation:none}#scroll{scroll-behavior:auto}}
+
+.body{padding:18px 18px 16px}
+.how{display:inline-block;font-size:13px;color:var(--amber);border:1px solid color-mix(in srgb,var(--amber) 45%,transparent);padding:2px 10px;border-radius:999px;margin-bottom:10px}
+.ans{font:500 19px/1.5 var(--display);margin:0}
+.err{margin-top:8px;color:var(--bad);font-size:14px}
+.ask{margin:0 0 4px;font:500 19px/1.4 var(--display)}
+.opts{display:grid;gap:8px;margin-top:14px}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--amber)}
+.opt:disabled{opacity:.5;cursor:default}
+.opt i{flex:none;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--mute)}
+.opt:hover:not(:disabled) i{border-color:var(--amber);background:var(--amber)}
+
+.tabs{display:flex;gap:4px;margin:16px 0 0;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;padding:8px 12px;cursor:pointer;color:var(--mute);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab[aria-selected=true]{color:var(--ink);border-color:var(--amber)}
+.tab.stat{margin-left:auto;cursor:default;font-size:13px}
+.pane{padding-top:12px}
+.tbl{overflow:auto;max-height:340px;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:8px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{position:sticky;top:0;background:var(--raise);font-weight:600}
+td{font-variant-numeric:tabular-nums} tr:last-child td{border-bottom:0}
+pre{margin:0;padding:14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;overflow:auto;font:400 13px/1.65 var(--mono);white-space:pre-wrap;word-break:break-word}
+.kw{color:var(--amber)}
+.cp{margin-top:8px;background:none;border:1px solid var(--line);border-radius:8px;padding:5px 12px;cursor:pointer;color:var(--mute);font-size:13px}
+.cp:hover{color:var(--ink);border-color:var(--mute)}
+.cbox{height:260px}
+
+.dock{position:relative;border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);padding:14px 0 max(14px,env(safe-area-inset-bottom))}
+form{display:flex;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 6px 6px 16px;transition:border-color .15s}
+form:focus-within{border-color:var(--amber)}
+input{flex:1;min-width:0;background:none;border:0;color:var(--ink);font:inherit;font-size:16px}
+input:focus{outline:none}
+input::placeholder{color:var(--mute)}
+.go{border:0;background:var(--amber);color:var(--amber-ink);font-weight:600;border-radius:10px;padding:9px 20px;cursor:pointer}
+.go:disabled{opacity:.5;cursor:default}
+.note{margin:8px 4px 0;font-size:12.5px;color:var(--mute)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><div class="mark">SQL</div>Ask the database</div>
+  <div class="safe"><span class="pill"><i></i>Read-only access</span><span class="pill">Queries are checked before they run</span></div>
+</header>
+
+<div id="scroll"><div class="wrap">
+  <section class="hero" id="hero">
+    <h1>Ask the database in plain words.</h1>
+    <p>This agent reads an online store's orders, customers, sellers and reviews, writes the SQL for your question, and shows its work.</p>
+    <div class="try" id="try"></div>
+  </section>
+  <div id="log"></div>
+</div></div>
+
+<div class="dock"><div class="wrap">
+  <form id="form">
+    <input id="q" autocomplete="off" placeholder="Ask about orders, sellers, delivery times..." aria-label="Your question">
+    <button class="go" id="send" type="submit">Ask</button>
+  </form>
+  <p class="note">Vague questions such as "best customer" get a quick follow-up so the answer matches what you mean.</p>
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const $=id=>document.getElementById(id), log=$('log'), box=$('scroll'), inp=$('q'), send=$('send');
+const PROMPTS=[["Top 5 sellers by revenue","Ranking"],["Who is the best customer?","Asks you to clarify"],
+ ["What percentage of orders are canceled?","Ratio"],["Average delivery time in days for delivered orders","Dates"]];
+const STEPS=["Understood the question","Wrote the SQL","Checked the SQL","Ran the query"];
+const KW=/\b(SELECT|FROM|WHERE|GROUP BY|ORDER BY|LIMIT|JOIN|ON|AS|AND|OR|COUNT|SUM|AVG|DISTINCT|DESC|ASC|HAVING|WITH|CASE|WHEN|THEN|ELSE|END|IN|NOT|NULL|LEFT|INNER|OVER|BY)\b/g;
+
+function h(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+const down=()=>box.scrollTo({top:box.scrollHeight});
+
+PROMPTS.forEach(([t,tag])=>{const b=h('button','',t);b.append(h('small','',tag));
+  b.onclick=()=>{inp.value=t;$('form').requestSubmit()};$('try').append(b)});
+
+function flow(state){ // state: array of 'run'|'ok'|'no'|'skip'|''
+  const f=h('div','flow');
+  STEPS.forEach((s,i)=>{const sp=h('span',state[i]||'');
+    sp.append(h('b','',state[i]=='ok'?'✓':state[i]=='no'?'✕':''),h('em','',s));
+    sp.querySelector('em').style.fontStyle='normal';f.append(sp)});
+  return f;
+}
+
+async function api(question,clar){
+  const r=await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({question,clarification:clar||''})});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(typeof d.detail==='string'?d.detail:'Request failed');
+  return d;
+}
+
+async function run(question,clar){
+  $('hero').style.display='none';
+  const card=h('div','card'), body=h('div','body');
+  let step=0, st=['run'];
+  let fl=flow(st);card.append(fl,body);log.append(card);down();
+  body.textContent='Working on it...';
+  const tick=setInterval(()=>{step=Math.min(step+1,2);st=[];for(let i=0;i<4;i++)st[i]=i<step?'ok':i==step?'run':'';
+    const n=flow(st);fl.replaceWith(n);fl=n},1300);
+  send.disabled=inp.disabled=true;
+  try{
+    const d=await api(question,clar);clearInterval(tick);body.textContent='';
+    if(d.needs_clarification){fl.replaceWith(flow(['ok','','','']));clarify(body,question,d)}
+    else{let s=['ok','ok','ok','ok'];
+      if(d.blocked)s=['ok','ok','no','skip'];else if(d.error)s=['ok','ok','ok','no'];
+      fl.replaceWith(flow(s));result(body,d)}
+  }catch(e){clearInterval(tick);fl.replaceWith(flow(['ok','','','']));body.textContent='';
+    body.append(h('p','ask','That did not work.'),h('p','err',e.message))}
+  finally{send.disabled=inp.disabled=false;inp.focus();down()}
+}
+
+function clarify(body,question,d){
+  body.append(h('p','ask',d.clarify_question));
+  const o=h('div','opts');
+  d.options.forEach(t=>{const b=h('button','opt');b.append(h('i'),h('span','',t));
+    b.onclick=()=>{o.querySelectorAll('button').forEach(x=>x.disabled=true);addQ(t);run(question,t)};o.append(b)});
+  body.append(o);
+}
+
+function addQ(t){const q=h('div','q');q.append(h('span','',t));log.append(q);down()}
+
+function result(body,d){
+  if(d.interpretation)body.append(h('span','how','Counted as: '+d.interpretation));
+  body.append(h('p','ans',(d.answer||'').replace(/\*\*/g,'')));
+  if(d.blocked)body.append(h('p','err','The guardrail stopped this query because it was not a safe read-only SELECT.'));
+  else if(d.error)body.append(h('p','err',d.error));
+  const panes={},tabs=h('div','tabs');tabs.setAttribute('role','tablist');
+  const hasRows=d.columns&&d.columns.length&&d.rows&&d.rows.length;
+  const canChart=hasRows&&d.columns.length==2&&d.rows.length>=2&&d.rows.length<=30&&typeof d.rows[0][1]==='number';
+  const def=[];if(hasRows)def.push('Table');if(canChart)def.push('Chart');if(d.sql)def.push('SQL');
+  if(!def.length)return;
+  const pane=h('div','pane');let drawn=false;
+  function show(name){
+    tabs.querySelectorAll('.tab[role=tab]').forEach(t=>t.setAttribute('aria-selected',t.textContent==name));
+    pane.textContent='';
+    if(name=='Table'){const w=h('div','tbl'),t=h('table'),th=h('thead'),hr=h('tr');
+      d.columns.forEach(c=>hr.append(h('th','',c)));th.append(hr);t.append(th);
+      const tb=h('tbody');d.rows.forEach(r=>{const tr=h('tr');r.forEach(v=>tr.append(h('td','',v===null?'NULL':String(v))));tb.append(tr)});
+      t.append(tb);w.append(t);pane.append(w)}
+    if(name=='Chart'){const b=h('div','cbox'),c=h('canvas');b.append(c);pane.append(b);
+      const col=getComputedStyle(document.documentElement).getPropertyValue('--amber').trim(),
+            mute=getComputedStyle(document.documentElement).getPropertyValue('--mute').trim();
+      new Chart(c,{type:'bar',data:{labels:d.rows.map(r=>String(r[0]).slice(0,16)),
+        datasets:[{label:d.columns[1],data:d.rows.map(r=>r[1]),backgroundColor:col,borderRadius:4}]},
+        options:{maintainAspectRatio:false,plugins:{legend:{display:false}},
+          scales:{x:{ticks:{color:mute},grid:{display:false}},y:{ticks:{color:mute}}}}})}
+    if(name=='SQL'){const p=h('pre');let last=0;const s=d.sql;
+      s.replace(KW,(m,_,i)=>{p.append(s.slice(last,i));p.append(h('span','kw',m));last=i+m.length;return m});
+      p.append(s.slice(last));pane.append(p);
+      const cp=h('button','cp','Copy SQL');cp.onclick=()=>{navigator.clipboard.writeText(s);cp.textContent='Copied'};pane.append(cp)}
+  }
+  def.forEach(n=>{const t=h('button','tab',n);t.setAttribute('role','tab');t.onclick=()=>show(n);tabs.append(t)});
+  const stat=h('span','tab stat',(d.rows?d.rows.length:0)+' rows in '+d.latency_ms+' ms');tabs.append(stat);
+  body.append(tabs,pane);show(def[0]);
+}
+
+$('form').addEventListener('submit',e=>{e.preventDefault();const v=inp.value.trim();if(!v)return;
+  inp.value='';addQ(v);run(v,'')});
+</script>
+</body>
+</html>
