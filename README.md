@@ -66,7 +66,7 @@ To use the full dataset, download the Olist CSVs into `data/` and run `python lo
 - The prompt has notes written for Olist (which tables join, order statuses, and so on), so it won't work well on a different database without changes. There's no CSV upload.
 - 40 questions is a small set and I wrote it myself, so the score shows it works but not much more than that.
 - The vague-question check starts from a word list, so something like "which customers matter most?" isn't caught.
-- Question 29 in the benchmark fails with an execution error. I haven't found the cause yet.
+- Question 29 timed out at first. The model's query was correct but slow because my local database had no indexes on the join columns. Adding indexes fixed it.
 - Answers take about 2 to 30 seconds.
 
 ## Next
